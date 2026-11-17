@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Producto</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1 id="pageTitle">Registro de Producto</h1>
+    </header>
+
+    <nav>
+        <a href="index.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="agregar.html">Agregar Producto</a>
+    </nav>
+
+    <main>
+        <div class="card">
+            <form id="productForm">
+                <!-- ID oculto para edición -->
+                <input type="hidden" id="productId">
+
+                <label for="nombre">Nombre del producto *</label>
+                <input type="text" id="nombre" placeholder="Ingrese nombre del producto" required>
+
+                <label for="categoria">Categoría *</label>
+                <input type="text" id="categoria" placeholder="Ej: Papelería, Cómputo, Mobiliario" required>
+
+                <label for="descripcion">Descripción</label>
+                <textarea id="descripcion" rows="3" placeholder="Detalles u observaciones del producto"></textarea>
+
+                <label for="cantidad">Cantidad en existencia *</label>
+                <input type="number" id="cantidad" placeholder="0" min="0" step="1" required>
+
+                <button type="submit" id="btnSubmit" class="btn btn-primary" style="margin-top: 20px;">
+                    💾 Guardar Producto
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        Sistema de Inventario - UT San Juan del Río
+    </footer>
+
+    <script>
+        const STORAGE_KEY = 'inventario_ut_db';
+        function getDB() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        }
+        function saveDB(data) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const editId = params.get('id');
+
+        // DETECCIÓN DE MODO EDICIÓN
+        if (editId) {
+            const db = getDB();
+            const prod = db.find(p => String(p.id) === String(editId));
+            if (prod) {
+                document.getElementById('pageTitle').textContent = "Modificar Producto";
+                document.getElementById('productId').value = prod.id;
+                document.getElementById('nombre').value = prod.nombre;
+                document.getElementById('categoria').value = prod.categoria;
+                document.getElementById('descripcion').value = prod.descripcion || '';
+                document.getElementById('cantidad').value = prod.cantidad;
+                document.getElementById('btnSubmit').textContent = "Actualizar Cambios";
+            }
+        }
+
+        // GUARDADO CON CASOS ALTERNOS
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('productId').value;
+            const nombre = document.getElementById('nombre').value.trim();
+            const categoria = document.getElementById('categoria').value.trim();
+            const descripcion = document.getElementById('descripcion').value.trim();
+            const cantidad = parseInt(document.getElementById('cantidad').value, 10);
+
+            // CASO ALTERNO 1: Campos en blanco
+            if (!nombre || !categoria) {
+                alert("Por favor llena los campos requeridos.");
+                return;
+            }
+
+            // CASO ALTERNO 2: Cantidad inválida o negativa
+            if (isNaN(cantidad) || cantidad < 0) {
+                alert("La cantidad en existencia debe ser 0 o un número positivo.");
+                return;
+            }
+
+            let db = getDB();
+
+            // CASO ALTERNO 3: Nombre de producto duplicado en la misma categoría
+            const existeDuplicado = db.find(p => 
+                p.nombre.toLowerCase() === nombre.toLowerCase() && 
+                p.categoria.toLowerCase() === categoria.toLowerCase() &&
+                String(p.id) !== String(id)
+            );
+            if (existeDuplicado) {
+                alert(`El producto "${nombre}" ya existe en la categoría "${categoria}". Modifícalo desde el catálogo o cambia el nombre.`);
+                return;
+            }
+
+            // Guardar o Actualizar
+            if (id) {
+                const index = db.findIndex(p => String(p.id) === String(id));
+                if (index !== -1) {
+                    db[index] = { id, nombre, categoria, descripcion, cantidad };
+                    saveDB(db);
+                    alert("¡Producto modificado con éxito!");
+                }
+            } else {
+                const nuevoId = db.length > 0 ? Math.max(...db.map(p => Number(p.id) || 0)) + 1 : 1;
+                db.push({ id: nuevoId, nombre, categoria, descripcion, cantidad });
+                saveDB(db);
+                alert("¡Producto registrado exitosamente!");
+            }
+
+            window.location.href = "productos.html";
+        });
+    </script>
+</body>
+</html>

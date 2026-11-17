@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Librería SheetJS para exportar a Excel (.xlsx) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Inventario de Productos</h1>
+    </header>
+
+    <nav>
+        <a href="index.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="agregar.html">Agregar Producto</a>
+    </nav>
+
+    <main>
+        <div class="card">
+            <!-- Botón Exportar a Excel -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>Listado Actual</h2>
+                <button id="btnExcel" class="btn btn-success" onclick="exportarExcel()">
+                    📊 Exportar a Excel (.xlsx)
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Descripción</th>
+                            <th>Existencia</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaCuerpo">
+                        <!-- Carga dinámica -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        Sistema de Inventario - UT San Juan del Río
+    </footer>
+
+    <script>
+        const STORAGE_KEY = 'inventario_ut_db';
+
+        // Carga inicial de datos demo si el almacenamiento está vacío
+        function inicializarDatosPorDefecto() {
+            if (!localStorage.getItem(STORAGE_KEY)) {
+                const demo = [
+                    { id: 1, nombre: "Lápiz", categoria: "Papelería", descripcion: "Lápiz grafito HB", cantidad: 120 },
+                    { id: 2, nombre: "Cuaderno", categoria: "Papelería", descripcion: "Cuaderno profesional 100 hojas", cantidad: 50 },
+                    { id: 3, nombre: "Borrador", categoria: "Papelería", descripcion: "Borrador de migajón", cantidad: 35 },
+                    { id: 4, nombre: "Regla", categoria: "Papelería", descripcion: "Regla plástico 30cm", cantidad: 40 }
+                ];
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(demo));
+            }
+        }
+
+        function getDB() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        }
+
+        function renderTabla() {
+            const db = getDB();
+            const tbody = document.getElementById('tablaCuerpo');
+            tbody.innerHTML = '';
+
+            if (db.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="padding: 30px; color: #64748b;">No hay productos registrados en el inventario.</td></tr>`;
+                return;
+            }
+
+            db.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>#${p.id}</strong></td>
+                    <td>${p.nombre}</td>
+                    <td>${p.categoria}</td>
+                    <td>${p.descripcion || '-'}</td>
+                    <td><strong>${p.cantidad}</strong></td>
+                    <td>
+                        <a href="agregar.html?id=${p.id}" class="btn btn-warning">✏️ Modificar</a>
+                        <button class="btn btn-danger" onclick="eliminarProducto(${p.id})">🗑️ Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // FUNCIONALIDAD ELIMINAR CON CONFIRMACIÓN
+        function eliminarProducto(id) {
+            let db = getDB();
+            const prod = db.find(p => Number(p.id) === Number(id));
+            if (!prod) return;
+
+            const confirmar = confirm(`¿Estás seguro de que deseas eliminar "${prod.nombre}"?`);
+            if (!confirmar) return;
+
+            db = db.filter(p => Number(p.id) !== Number(id));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+            renderTabla();
+        }
+
+        // FUNCIONALIDAD EXPORTAR A EXCEL (.XLSX)
+        function exportarExcel() {
+            const db = getDB();
+            if (db.length === 0) {
+                alert("No hay productos disponibles para exportar.");
+                return;
+            }
+
+            const dataParaExcel = db.map(p => ({
+                "ID": p.id,
+                "Nombre del Producto": p.nombre,
+                "Categoría": p.categoria,
+                "Descripción": p.descripcion || 'Sin descripción',
+                "Existencia (Stock)": p.cantidad
+            }));
+
+            const hoja = XLSX.utils.json_to_sheet(dataParaExcel);
+            const libro = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(libro, hoja, "Inventario");
+            XLSX.writeFile(libro, `Inventario_Productos_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        inicializarDatosPorDefecto();
+        renderTabla();
+    </script>
+</body>
+</html>

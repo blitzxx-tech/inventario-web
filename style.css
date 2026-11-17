@@ -1,0 +1,141 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+body {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+header {
+    background: linear-gradient(135deg, #0d6efd, #084298);
+    color: white;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+nav {
+    background: #0b3270;
+    padding: 12px;
+    text-align: center;
+}
+
+nav a {
+    color: #e2e8f0;
+    text-decoration: none;
+    margin: 0 16px;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+nav a:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+main {
+    max-width: 950px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    margin-bottom: 25px;
+}
+
+/* Tabla de Productos */
+.table-responsive {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th {
+    background: #0d6efd;
+    color: white;
+    padding: 14px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+td {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 14px;
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* Botones con estilo */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-primary { background: #0d6efd; color: white; width: 100%; padding: 12px; font-size: 1rem; }
+.btn-primary:hover { background: #084298; }
+
+.btn-success { background: #198754; color: white; margin-bottom: 15px; }
+.btn-success:hover { background: #146c43; }
+
+.btn-warning { background: #ffc107; color: #000; margin-right: 5px; }
+.btn-warning:hover { background: #e0a800; }
+
+.btn-danger { background: #dc3545; color: white; }
+.btn-danger:hover { background: #bb2d3b; }
+
+/* Formularios */
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #475569;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    outline: none;
+}
+
+input:focus, textarea:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+footer {
+    margin-top: 50px;
+    background: #1e293b;
+    color: #94a3b8;
+    text-align: center;
+    padding: 20px;
+}
